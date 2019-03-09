@@ -1,0 +1,2 @@
+1,Human,RandomPlayer,0,Human,4,game00001.log,
+3,Human,RandomPlayer,0,Human,4,game00003.log,
