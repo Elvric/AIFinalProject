@@ -21,8 +21,8 @@ public class MyTools {
 
   private MyTools() {}
 
-  public static MyTools getInstance(int color) {
-    instance.color = color;
+  public static MyTools getInstance(PentagoBoardState state) {
+    instance.color = state.getTurnPlayer();
     return instance;
   }
 
@@ -100,7 +100,7 @@ public class MyTools {
           colValEnemy += pieceValue(colPiece);
         }
       }
-      if (rowValEnemy > 3 || colValEnemy > 3) {
+      if (rowValEnemy > 2 || colValEnemy > 2) {
         return true;
       }
       PentagoBoardState.Piece diagMiddleLeft = state.getPieceAt(i, i);
@@ -132,7 +132,7 @@ public class MyTools {
 //      PentagoBoardState.Piece diagUpRight = state.getPieceAt(4 - i, i);
 //      PentagoBoardState.Piece diagDownRight = state.getPieceAt(5 - i, i+1);
     }
-    if (diagMiddleLeftVal > 3 || diagMiddleRightVal > 3) {
+    if (diagMiddleLeftVal > 2 || diagMiddleRightVal > 2) {
       return true;
     }
     return false;
@@ -265,11 +265,7 @@ public class MyTools {
         childState.processMove(move);
         int heuristic = heuristic(childState);
         if (heuristic < 0) {
-          if (parent != null) {
-            this.parent.children.remove(this);
-          }
-          this.children.clear();
-          break;
+          continue;
         }
         Node childNode = new Node(childState, this, depth, heuristic);
         if (heuristic > 0) {
