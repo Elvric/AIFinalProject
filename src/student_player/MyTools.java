@@ -73,40 +73,66 @@ public class MyTools {
   }
 
   private boolean enemyHasFourInRow(PentagoBoardState state) {
-    int topLeftDiag = 0;
-    int topRightDiag = 0;
+    int diagMiddleLeftVal = 0;
+    int diagMiddleRightVal = 0;
     for (int i = 0; i < 6; i++) {
-      int rowVal = 0;
-      int colVal = 0;
+      int rowValEnemy = 0;
+      int colValEnemy = 0;
       for (int j = 0; j < 6; j++) {
         PentagoBoardState.Piece rowPiece = state.getPieceAt(i, j);
         PentagoBoardState.Piece colPiece = state.getPieceAt(j, i);
         if (isMyPiece(rowPiece)) {
           if (j != 0 || j != 5) {
-            rowVal = -10;
+            rowValEnemy = -10;
           } else if (isMyPiece(state.getPieceAt(i, 5 - j))) {
-            rowVal = -10;
+            rowValEnemy = -10;
           }
         } else {
-          rowVal += pieceValue(rowPiece);
+          rowValEnemy += pieceValue(rowPiece);
         }
         if (isMyPiece(colPiece)) {
           if (j != 0 || j != 5) {
-            colVal = -10;
+            colValEnemy = -10;
           } else if (isMyPiece(state.getPieceAt(5 - j, i))) {
-            colVal = -10;
+            colValEnemy = -10;
           }
         } else {
-          colVal += pieceValue(colPiece);
+          colValEnemy += pieceValue(colPiece);
         }
       }
-      if (rowVal > 3 || colVal > 3) {
+      if (rowValEnemy > 3 || colValEnemy > 3) {
         return true;
       }
-      PentagoBoardState.Piece diageLeftPiece = state.getPieceAt(i, i);
-      PentagoBoardState.Piece diagRightPiece = state.getPieceAt(5 - i, i);
+      PentagoBoardState.Piece diagMiddleLeft = state.getPieceAt(i, i);
+      PentagoBoardState.Piece digMiddleRight = state.getPieceAt(5-i, i);
+      if (isMyPiece(diagMiddleLeft)) {
+        if (i != 0 || i != 5) {
+          diagMiddleLeftVal = -10;
+        }
+        else if (isMyPiece(state.getPieceAt(5-i,5-i))) {
+          diagMiddleLeftVal = -10;
+        }
+        else {
+          diagMiddleLeftVal += pieceValue(diagMiddleLeft);
+        }
+      }
+      if (isMyPiece(digMiddleRight)) {
+        if (i != 0 || i != 5) {
+          diagMiddleRightVal = -10;
+        }
+        else if (isMyPiece(state.getPieceAt(i,5-i))) {
+          diagMiddleRightVal = -10;
+        }
+        else {
+          diagMiddleRightVal += pieceValue(diagMiddleLeft);
+        }
+      }
+//      PentagoBoardState.Piece diagUplLeft = state.getPieceAt(i+1, i);
+//      PentagoBoardState.Piece diagDownLeft = state.getPieceAt(i, i+1);
+//      PentagoBoardState.Piece diagUpRight = state.getPieceAt(4 - i, i);
+//      PentagoBoardState.Piece diagDownRight = state.getPieceAt(5 - i, i+1);
     }
-    if (topLeftDiag > 3 || topRightDiag > 3) {
+    if (diagMiddleLeftVal > 3 || diagMiddleRightVal > 3) {
       return true;
     }
     return false;
@@ -178,7 +204,9 @@ public class MyTools {
     if (currentBest == null) {
       return (PentagoMove) rootNode.state.getRandomMove();
     }
-    return rootNode.children.get(currentBest);
+    PentagoMove move = rootNode.children.get(currentBest);
+    rootNode = currentBest;
+    return move;
   }
 
   public Node descent(Node startNode) {
