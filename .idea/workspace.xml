@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/outcomes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/logs/outcomes.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/student_player/MyTools.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/student_player/MyTools.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/student_player/StudentPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/student_player/StudentPlayer.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -54,8 +53,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/student_player/MyTools.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="288" column="7" lean-forward="true" selection-start-line="288" selection-start-column="7" selection-end-line="288" selection-end-column="7" />
+            <state relative-caret-position="177">
+              <caret line="114" column="2" selection-start-line="115" selection-end-line="115" selection-end-column="7" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -66,8 +65,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2685">
-              <caret line="194" column="33" selection-start-line="194" selection-start-column="33" selection-end-line="194" selection-end-column="33" />
+            <state relative-caret-position="135">
+              <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -115,6 +114,18 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>Integer</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -122,6 +133,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/student_player/StudentPlayer.java" />
+        <option value="$PROJECT_DIR$/src/student_player/Verify.java" />
         <option value="$PROJECT_DIR$/src/student_player/MyTools.java" />
       </list>
     </option>
@@ -261,7 +273,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7000000" />
+    <option name="totallyTimeSpent" value="9185000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -347,13 +359,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2685">
-          <caret line="194" column="33" selection-start-line="194" selection-start-column="33" selection-end-line="194" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/eclipse/StudentPlayer.launch">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -392,10 +397,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/student_player/Verify.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="62" selection-start-line="9" selection-start-column="45" selection-end-line="9" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/student_player/MyTools.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="288" column="7" lean-forward="true" selection-start-line="288" selection-start-column="7" selection-end-line="288" selection-end-column="7" />
+        <state relative-caret-position="177">
+          <caret line="114" column="2" selection-start-line="115" selection-end-line="115" selection-end-column="7" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

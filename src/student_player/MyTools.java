@@ -37,7 +37,7 @@ public class MyTools {
       limit = 3;
     }
     while (System.currentTimeMillis() < end) {
-      Node leafNode = descent(rootNode);
+      Node leafNode = descent();
       rolloutAndPropagationPhase(leafNode);
     }
     System.out.println(rootNode.visitCount);
@@ -66,7 +66,7 @@ public class MyTools {
         return Integer.MIN_VALUE;
       }
     }
-    if (enemyHasFourInRow(state) && state.getTurnPlayer() != color) {
+    if (enemyHasFourInRow(state)) {
       return Integer.MIN_VALUE;
     }
     return 0;
@@ -104,33 +104,30 @@ public class MyTools {
         return true;
       }
       PentagoBoardState.Piece diagMiddleLeft = state.getPieceAt(i, i);
-      PentagoBoardState.Piece digMiddleRight = state.getPieceAt(5-i, i);
+      PentagoBoardState.Piece digMiddleRight = state.getPieceAt(5 - i, i);
       if (isMyPiece(diagMiddleLeft)) {
         if (i != 0 || i != 5) {
           diagMiddleLeftVal = -10;
-        }
-        else if (isMyPiece(state.getPieceAt(5-i,5-i))) {
+        } else if (isMyPiece(state.getPieceAt(5 - i, 5 - i))) {
           diagMiddleLeftVal = -10;
         }
-        else {
-          diagMiddleLeftVal += pieceValue(diagMiddleLeft);
-        }
+      } else {
+        diagMiddleLeftVal += pieceValue(diagMiddleLeft);
       }
       if (isMyPiece(digMiddleRight)) {
         if (i != 0 || i != 5) {
           diagMiddleRightVal = -10;
-        }
-        else if (isMyPiece(state.getPieceAt(i,5-i))) {
+        } else if (isMyPiece(state.getPieceAt(i, 5 - i))) {
           diagMiddleRightVal = -10;
         }
+      }
         else {
           diagMiddleRightVal += pieceValue(diagMiddleLeft);
         }
-      }
-//      PentagoBoardState.Piece diagUplLeft = state.getPieceAt(i+1, i);
-//      PentagoBoardState.Piece diagDownLeft = state.getPieceAt(i, i+1);
-//      PentagoBoardState.Piece diagUpRight = state.getPieceAt(4 - i, i);
-//      PentagoBoardState.Piece diagDownRight = state.getPieceAt(5 - i, i+1);
+      //      PentagoBoardState.Piece diagUplLeft = state.getPieceAt(i+1, i);
+      //      PentagoBoardState.Piece diagDownLeft = state.getPieceAt(i, i+1);
+      //      PentagoBoardState.Piece diagUpRight = state.getPieceAt(4 - i, i);
+      //      PentagoBoardState.Piece diagDownRight = state.getPieceAt(5 - i, i+1);
     }
     if (diagMiddleLeftVal > 2 || diagMiddleRightVal > 2) {
       return true;
@@ -174,7 +171,7 @@ public class MyTools {
   public double getSearchScore(Node n) {
     int nodeNumVisits = n.visitCount;
     if (nodeNumVisits < 1) {
-      return Integer.MAX_VALUE;
+      return 2000;
     }
     int parentVisitCount = n.parent.visitCount;
     double nodeNumWins = n.winCount;
@@ -186,20 +183,19 @@ public class MyTools {
     Node currentBest = null;
     double currentBestScore = Integer.MIN_VALUE;
     for (Node child : rootNode.children.keySet()) {
-        if (child.heuristic > 0) {
-          return rootNode.children.get(child);
-        }
-        else if (child.heuristic < 0) {
-          continue;
-        }
-        if (child.visitCount < 1) {
-          continue;
-        }
-        double averageWin = child.winCount / child.visitCount;
-        if (averageWin > currentBestScore) {
-          currentBest = child;
-          currentBestScore = averageWin;
-        }
+      if (child.heuristic > 0) {
+        return rootNode.children.get(child);
+      } else if (child.heuristic < 0) {
+        continue;
+      }
+      if (child.visitCount < 1) {
+        continue;
+      }
+      double averageWin = child.winCount / child.visitCount;
+      if (averageWin > currentBestScore) {
+        currentBest = child;
+        currentBestScore = averageWin;
+      }
     }
     if (currentBest == null) {
       return (PentagoMove) rootNode.state.getRandomMove();
@@ -209,7 +205,7 @@ public class MyTools {
     return move;
   }
 
-  public Node descent(Node startNode) {
+  public Node descent() {
     Node leafNode = rootNode;
     // TODO deal with issue where we will always loose on all child
     while (!leafNode.children.isEmpty()) {
@@ -219,9 +215,11 @@ public class MyTools {
         if (score > bestScore) {
           leafNode = child;
           bestScore = score;
+          if (score > 1000) {
+            break;
+          }
         }
       }
-
     }
     return leafNode;
   }
@@ -234,7 +232,7 @@ public class MyTools {
     int location = new Random().nextInt(n.children.size());
     Node childExpended = (Node) n.children.keySet().toArray()[location];
     PentagoBoardState playState = (PentagoBoardState) childExpended.state.clone();
-    while(!playState.gameOver()) {
+    while (!playState.gameOver()) {
       playState.processMove(((PentagoMove) playState.getRandomMove()));
     }
     childExpended.incrementVisits(color == playState.getWinner(), playState.getWinner() > 2);
@@ -265,6 +263,15 @@ public class MyTools {
         childState.processMove(move);
         int heuristic = heuristic(childState);
         if (heuristic < 0) {
+          // If the current state is the enemy then the enemy can bring us to a bad heuristic thus we remove that child
+          // from the parent.
+          if (state.getTurnPlayer() != color) {
+            if (this.parent != null) {
+              this.parent.children.remove(this);
+            }
+            children.clear();
+            break;
+          }
           continue;
         }
         Node childNode = new Node(childState, this, depth, heuristic);
