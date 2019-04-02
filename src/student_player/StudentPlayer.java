@@ -28,9 +28,7 @@ public class StudentPlayer extends PentagoPlayer {
         // strategies...
         MyTools tool = MyTools.getInstance(this.player_id);
 
-        Move myMove = tool.minMaxSearch(boardState);
-        tool.heuristics((PentagoBoardState) boardState.clone());
-
+        Move myMove = tool.monteCarlo(boardState);
         // Return your move to be processed by the server.
         return myMove;
     }

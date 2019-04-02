@@ -1,130 +1,304 @@
 package student_player;
 
-import boardgame.BoardState;
-import boardgame.Move;
-import pentago_swap.PentagoBoard;
+import org.omg.CORBA.INTERNAL;
+import org.omg.PortableInterceptor.INACTIVE;
 import pentago_swap.PentagoBoardState;
+import pentago_swap.PentagoCoord;
 import pentago_swap.PentagoMove;
 
 import java.util.*;
 
 public class MyTools {
 
-  private static MyTools instance;
+  private static MyTools instance = new MyTools();
   private int color;
+  private Node rootNode;
+  private int limit = 2;
+  private double RATIO = 0.8;
+  private final double ALPHA = 0.7;
+  private long timeToThink = 1080;
+  private int hestimate = 1800;
 
-  private MyTools(int color) {
-    this.color = color;
-  }
+  private MyTools() {}
 
   public static MyTools getInstance(int color) {
-    if (instance == null) {
-      instance = new MyTools(color);
-    }
+    instance.color = color;
     return instance;
   }
 
-  public int heuristics(PentagoBoardState pentagoBoardState) {
-    if (pentagoBoardState.gameOver()) {
-      if (pentagoBoardState.getWinner() == color) {
-        return 100;
-      } else {
-        return -100;
-      }
-    }
-    int rowWite = 0;
-    int rowBlack = 0;
-    int countWhite;
-    int countBlack;
-    for (int x = 0; x < 6; x++) {
-      countWhite = 0;
-      countBlack = 0;
-      for (int y = 0; y < 6; y++) {
-        PentagoBoardState.Piece atLocation = pentagoBoardState.getPieceAt(x, y);
-        if (atLocation == PentagoBoardState.Piece.BLACK) {
-          countBlack++;
-          if (countWhite > 2) rowWite++;
-          countWhite = 0;
-        } else if (atLocation == PentagoBoardState.Piece.WHITE) {
-          countWhite++;
-          if (countBlack > 2) rowBlack++;
-          countBlack = 0;
-        }
-      }
-      if (countBlack > 2) {
-        rowBlack++;
-      }
-      if (countWhite > 2) {
-        rowWite++;
-      }
-    }
-    int answer = rowWite - rowBlack;
-
-    if (color == 1) answer = -answer;
-    return answer;
-  }
-
-  public PentagoMove minMaxSearch(PentagoBoardState pentagoBoardState) {
+  public PentagoMove monteCarlo(PentagoBoardState state) {
     long t = System.currentTimeMillis();
-    long end = t + 1000;
-    LinkedList<Node> list = new LinkedList<>();
-    Node startNode = new Node(pentagoBoardState);
-    list.addLast(startNode);
-    while (!list.isEmpty() && System.currentTimeMillis() < end) {
-      Node parent = list.removeFirst();
-      List<PentagoMove> moves = parent.state.getAllLegalMoves();
-      for (PentagoMove move: moves ) {
-            PentagoBoardState state = (PentagoBoardState) parent.state.clone();
-            state.processMove(move);
-            Node child = new Node(state);
-            parent.addChild(child, move);
-            list.addLast(child);
-      }
+    long end = t + timeToThink;
+    if (state.getTurnNumber() == 0) {
+      return firstMove(state);
     }
-    startNode.updateValue();
-    System.out.println(System.currentTimeMillis()-t);
-    return startNode.getBestMove();
+    rootNode = new Node(state, null, 0, 0);
+    if (state.getTurnNumber() > 7) {
+      limit = 3;
+    }
+    while (System.currentTimeMillis() < end) {
+      Node leafNode = descent(rootNode);
+      rolloutAndPropagationPhase(leafNode);
+    }
+    System.out.println(rootNode.visitCount);
+    PentagoMove nextMove = getNextBestMove();
+    System.out.println(rootNode.visitCount);
+    long timeTaken = System.currentTimeMillis() - t;
+    hestimate = (int) (timeTaken * ALPHA + hestimate * (1 - ALPHA));
+    long diff = 2000 - hestimate;
+    if (diff < 75) {
+      timeToThink -= Math.max(2, diff * 0.2);
+    } else if (diff > 500) {
+      diff = diff - 500;
+      timeToThink += Math.max(3, diff * 0.2);
+    }
+    System.out.println(hestimate);
+    return nextMove;
   }
 
-  class Node implements Comparable {
-    private PentagoBoardState state;
-    private int value;
-    private Map<Node, PentagoMove> maps = new HashMap<>();
-
-    @Override
-    public int compareTo(Object o) {
-      return value;
-    }
-
-    public Node(PentagoBoardState state) {
-      this.state = state;
-    }
-
-    public void addChild(Node n, PentagoMove move) {
-      maps.put(n, move);
-    }
-
-    public PentagoMove getBestMove() {
-      Set<Node> list = maps.keySet();
-      return maps.get(Collections.max(list));
-    }
-
-    public void updateValue() {
-      Set<Node> list = maps.keySet();
-      if (list.isEmpty()) {
-        value = heuristics(state);
-        return;
+  private int heuristic(PentagoBoardState state) {
+    if (state.gameOver()) {
+      if (state.getWinner() == color) {
+        return Integer.MAX_VALUE;
+      } else if (state.getWinner() > 2) {
+        return 0;
       } else {
-        for (Node n : list) {
-          n.updateValue();
+        return Integer.MIN_VALUE;
+      }
+    }
+    if (enemyHasFourInRow(state) && state.getTurnPlayer() != color) {
+      return Integer.MIN_VALUE;
+    }
+    return 0;
+  }
+
+  private boolean enemyHasFourInRow(PentagoBoardState state) {
+    int topLeftDiag = 0;
+    int topRightDiag = 0;
+    for (int i = 0; i < 6; i++) {
+      int rowVal = 0;
+      int colVal = 0;
+      for (int j = 0; j < 6; j++) {
+        PentagoBoardState.Piece rowPiece = state.getPieceAt(i, j);
+        PentagoBoardState.Piece colPiece = state.getPieceAt(j, i);
+        if (isMyPiece(rowPiece)) {
+          if (j != 0 || j != 5) {
+            rowVal = -10;
+          } else if (isMyPiece(state.getPieceAt(i, 5 - j))) {
+            rowVal = -10;
+          }
+        } else {
+          rowVal += pieceValue(rowPiece);
+        }
+        if (isMyPiece(colPiece)) {
+          if (j != 0 || j != 5) {
+            colVal = -10;
+          } else if (isMyPiece(state.getPieceAt(5 - j, i))) {
+            colVal = -10;
+          }
+        } else {
+          colVal += pieceValue(colPiece);
         }
       }
-      if (color == state.getTurnPlayer()) {
-        value = Collections.max(list).value;
+      if (rowVal > 3 || colVal > 3) {
+        return true;
       }
-      else {
-          value = Collections.min(list).value;
+      PentagoBoardState.Piece diageLeftPiece = state.getPieceAt(i, i);
+      PentagoBoardState.Piece diagRightPiece = state.getPieceAt(5 - i, i);
+    }
+    if (topLeftDiag > 3 || topRightDiag > 3) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isMyPiece(PentagoBoardState.Piece piece) {
+    if (color == 1 && piece == PentagoBoardState.Piece.BLACK) {
+      return true;
+    } else if (color == 0 && piece == PentagoBoardState.Piece.WHITE) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean isEnemyPiece(PentagoBoardState.Piece piece) {
+    if (piece == PentagoBoardState.Piece.EMPTY) {
+      return false;
+    }
+    if (color == 1 && piece == PentagoBoardState.Piece.BLACK) {
+      return false;
+    } else if (color == 0 && piece == PentagoBoardState.Piece.WHITE) {
+      return false;
+    }
+    return true;
+  }
+
+  private int pieceValue(PentagoBoardState.Piece piece) {
+    if (piece == PentagoBoardState.Piece.EMPTY) {
+      return 0;
+    }
+    if (color == 1 && piece == PentagoBoardState.Piece.BLACK) {
+      return -1;
+    } else if (color == 0 && piece == PentagoBoardState.Piece.WHITE) {
+      return -1;
+    }
+    return 1;
+  }
+
+  public double getSearchScore(Node n) {
+    int nodeNumVisits = n.visitCount;
+    if (nodeNumVisits < 1) {
+      return Integer.MAX_VALUE;
+    }
+    int parentVisitCount = n.parent.visitCount;
+    double nodeNumWins = n.winCount;
+    return nodeNumWins / (double) nodeNumVisits
+        + RATIO * Math.sqrt(Math.log(parentVisitCount) / (double) nodeNumVisits);
+  }
+
+  public PentagoMove getNextBestMove() {
+    Node currentBest = null;
+    double currentBestScore = Integer.MIN_VALUE;
+    for (Node child : rootNode.children.keySet()) {
+        if (child.heuristic > 0) {
+          return rootNode.children.get(child);
+        }
+        else if (child.heuristic < 0) {
+          continue;
+        }
+        if (child.visitCount < 1) {
+          continue;
+        }
+        double averageWin = child.winCount / child.visitCount;
+        if (averageWin > currentBestScore) {
+          currentBest = child;
+          currentBestScore = averageWin;
+        }
+    }
+    if (currentBest == null) {
+      return (PentagoMove) rootNode.state.getRandomMove();
+    }
+    return rootNode.children.get(currentBest);
+  }
+
+  public Node descent(Node startNode) {
+    Node leafNode = rootNode;
+    // TODO deal with issue where we will always loose on all child
+    while (!leafNode.children.isEmpty()) {
+      double bestScore = Integer.MIN_VALUE;
+      for (Node child : leafNode.children.keySet()) {
+        double score = getSearchScore(child);
+        if (score > bestScore) {
+          leafNode = child;
+          bestScore = score;
+        }
+      }
+
+    }
+    return leafNode;
+  }
+
+  public void rolloutAndPropagationPhase(Node n) {
+    n.generateChildren();
+    if (n.children.isEmpty()) {
+      return;
+    }
+    int location = new Random().nextInt(n.children.size());
+    Node childExpended = (Node) n.children.keySet().toArray()[location];
+    PentagoBoardState playState = (PentagoBoardState) childExpended.state.clone();
+    while(!playState.gameOver()) {
+      playState.processMove(((PentagoMove) playState.getRandomMove()));
+    }
+    childExpended.incrementVisits(color == playState.getWinner(), playState.getWinner() > 2);
+  }
+
+  class Node {
+    private PentagoBoardState state;
+    int visitCount = 0;
+    double winCount = 0;
+    int depth;
+    int heuristic;
+    Node parent;
+    Map<Node, PentagoMove> children = new HashMap<>();
+
+    public Node(PentagoBoardState state, Node parent, int depth, int heuristic) {
+      this.state = state;
+      this.parent = parent;
+      this.depth = depth;
+      this.heuristic = heuristic;
+    }
+
+    public void generateChildren() {
+      int depth = this.depth + 1;
+      List<PentagoMove> moves =
+          depth > limit ? allValidMoveIgnoreFlips(state) : state.getAllLegalMoves();
+      for (PentagoMove move : moves) {
+        PentagoBoardState childState = (PentagoBoardState) this.state.clone();
+        childState.processMove(move);
+        int heuristic = heuristic(childState);
+        if (heuristic < 0) {
+          if (parent != null) {
+            this.parent.children.remove(this);
+          }
+          this.children.clear();
+          break;
+        }
+        Node childNode = new Node(childState, this, depth, heuristic);
+        if (heuristic > 0) {
+          children.clear();
+          children.put(childNode, move);
+          break;
+        }
+        children.put(childNode, move);
       }
     }
+
+    public void incrementVisits(boolean hasWon, boolean isDraw) {
+      if (hasWon) {
+        winCount++;
+      } else if (isDraw) {
+        winCount += 0.5;
+      }
+      visitCount++;
+      if (this.parent != null) {
+        parent.incrementVisits(hasWon, isDraw);
+      }
+    }
+  }
+
+  private PentagoMove firstMove(PentagoBoardState state) {
+    int[] cord = {1, 4};
+    for (int i : cord) {
+      for (int j : cord) {
+        PentagoMove move =
+            new PentagoMove(
+                i, j, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, color);
+        if (state.isLegal(move)) {
+          return move;
+        }
+      }
+    }
+    return (PentagoMove) state.getRandomMove();
+  }
+
+  private List<PentagoMove> allValidMoveIgnoreFlips(PentagoBoardState state) {
+    List<PentagoMove> moves = new ArrayList<>(18);
+    for (int i = 0; i < 6; i++) {
+      for (int j = 0; j < 6; j++) {
+        PentagoCoord cord = new PentagoCoord(i, j);
+        if (state.isPlaceLegal(cord)) {
+          PentagoBoardState.Quadrant[] array = {
+            PentagoBoardState.Quadrant.TR,
+            PentagoBoardState.Quadrant.TL,
+            PentagoBoardState.Quadrant.BL,
+            PentagoBoardState.Quadrant.BR
+          };
+          List<PentagoBoardState.Quadrant> list = Arrays.asList(array);
+          Collections.shuffle(list);
+          moves.add(new PentagoMove(cord, list.get(0), list.get(1), state.getTurnPlayer()));
+        }
+      }
+    }
+    return moves;
   }
 }
