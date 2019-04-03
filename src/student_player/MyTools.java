@@ -33,8 +33,12 @@ public class MyTools {
       return firstMove(state);
     }
     rootNode = new Node(state, null, 0, 0);
-    if (state.getTurnNumber() > 7) {
-      limit = 3;
+    if (state.getTurnNumber() == 7) {
+      limit++;
+    }
+    else if (state.getTurnNumber() == 2) {
+      limit++;
+      timeToThink *= 0.95;
     }
     while (System.currentTimeMillis() < end) {
       Node leafNode = descent();
@@ -100,7 +104,7 @@ public class MyTools {
           colValEnemy += pieceValue(colPiece);
         }
       }
-      if (rowValEnemy > 2 || colValEnemy > 2) {
+      if (rowValEnemy > 3 || colValEnemy > 3) {
         return true;
       }
       PentagoBoardState.Piece diagMiddleLeft = state.getPieceAt(i, i);
@@ -120,16 +124,15 @@ public class MyTools {
         } else if (isMyPiece(state.getPieceAt(i, 5 - i))) {
           diagMiddleRightVal = -10;
         }
+      } else {
+        diagMiddleRightVal += pieceValue(diagMiddleLeft);
       }
-        else {
-          diagMiddleRightVal += pieceValue(diagMiddleLeft);
-        }
       //      PentagoBoardState.Piece diagUplLeft = state.getPieceAt(i+1, i);
       //      PentagoBoardState.Piece diagDownLeft = state.getPieceAt(i, i+1);
       //      PentagoBoardState.Piece diagUpRight = state.getPieceAt(4 - i, i);
       //      PentagoBoardState.Piece diagDownRight = state.getPieceAt(5 - i, i+1);
     }
-    if (diagMiddleLeftVal > 2 || diagMiddleRightVal > 2) {
+    if (diagMiddleLeftVal > 3 || diagMiddleRightVal > 3) {
       return true;
     }
     return false;
@@ -263,7 +266,8 @@ public class MyTools {
         childState.processMove(move);
         int heuristic = heuristic(childState);
         if (heuristic < 0) {
-          // If the current state is the enemy then the enemy can bring us to a bad heuristic thus we remove that child
+          // If the current state is the enemy then the enemy can bring us to a bad heuristic thus
+          // we remove that child
           // from the parent.
           if (state.getTurnPlayer() != color) {
             if (this.parent != null) {
@@ -276,9 +280,12 @@ public class MyTools {
         }
         Node childNode = new Node(childState, this, depth, heuristic);
         if (heuristic > 0) {
-          children.clear();
-          children.put(childNode, move);
-          break;
+          if (state.getTurnPlayer() == color) {
+            children.clear();
+            children.put(childNode, move);
+            break;
+          }
+          continue;
         }
         children.put(childNode, move);
       }
