@@ -3,8 +3,6 @@ package student_player;
 import pentago_swap.PentagoBoardState;
 import pentago_swap.PentagoCoord;
 import pentago_swap.PentagoMove;
-import sun.nio.fs.MacOSXFileSystemProvider;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,7 +17,7 @@ public class MyTools {
   private double RATIO = 0.8;
   private final double ALPHA = 0.8;
   private long timeToThink = 1080;
-  private int hestimate = 1800;
+  private int hestimate = 1900;
 
   private MyTools() {}
 
@@ -29,22 +27,20 @@ public class MyTools {
   }
 
   public PentagoMove monteCarlo(PentagoBoardState state) {
-    long startTime = System.currentTimeMillis();
-    long timeEnd = System.currentTimeMillis() + timeToThink;
-    if (state.getTurnNumber() == 0) {
-      this.limit = 3;
-      this.timeToThink = 1080;
-      this.hestimate = 1800;
-      return firstMove(state);
-    }
-    if (state.getTurnNumber() == 1) {
-      timeToThink -= 50;
-    } else if (state.getTurnNumber() == 7) {
+    if (state.getTurnNumber() == 7) {
       limit++;
     } else if (state.getTurnPlayer() == 14) {
       limit = Integer.MAX_VALUE;
     }
     rootNode = new Node(state, null, 0, 0);
+    long startTime = System.currentTimeMillis();
+    long timeEnd = System.currentTimeMillis() + timeToThink;
+    if (state.getTurnNumber() == 0) {
+      this.limit = 3;
+      this.timeToThink = 1080;
+      this.hestimate = 1900;
+      return firstMove(state);
+    }
     while (System.currentTimeMillis() < timeEnd) {
       monteCarloStimulation(descentPhase());
     }
@@ -104,7 +100,8 @@ public class MyTools {
 
   public PentagoMove getNextBestMove() {
     Node bestNode = null;
-    double bestAverage = Integer.MIN_VALUE;
+    double bestAverage = 0;
+    int bestNumVisits = 0;
     for (Node child : rootNode.children.keySet()) {
       if (child.heristic > 0) {
         bestNode = child;
@@ -116,6 +113,12 @@ public class MyTools {
       if (average > bestAverage) {
         bestNode = child;
         bestAverage = average;
+        bestNumVisits = child.visitCount;
+      }
+      else if (average == bestAverage && child.visitCount > bestNumVisits) {
+        bestNode = child;
+        bestAverage = average;
+        bestNumVisits = child.visitCount;
       }
     }
     if (bestNode == null) {
@@ -361,6 +364,62 @@ public class MyTools {
         return array;
       }
     }
+    int numInRow = 0;
+    int importantLoctation = -1;
+    for (int i = 0; i < 6; i++) {
+      PentagoBoardState.Piece piece = state.getPieceAt(i, i);
+      if (isMyPiece(piece, oponent)) {
+        numInRow = 0;
+        break;
+      } else if (isOponentPiece(piece, oponent)
+              && (importantLoctation == -1 || i == importantLoctation || i == 1 || i == 4)) {
+        numInRow++;
+      }
+      if (numInRow == 2 && importantLoctation == -1) {
+        switch (i) {
+          case 2:
+            importantLoctation = 3;
+            break;
+          case 1:
+            importantLoctation = 5;
+            break;
+          case 3:
+            importantLoctation = 4;
+        }
+      }
+    }
+    if (numInRow > 2) {
+      array[2] = 1;
+      return array;
+    }
+    numInRow = 0;
+    importantLoctation = -1;
+    for (int i = 0; i < 6; i++) {
+      PentagoBoardState.Piece piece = state.getPieceAt(5-i, i);
+      if (isMyPiece(piece, oponent)) {
+        numInRow = 0;
+        break;
+      } else if (isOponentPiece(piece, oponent)
+              && (importantLoctation == -1 || 5-i == importantLoctation || 5-i == 1 || 5-i == 4)) {
+        numInRow++;
+      }
+      if (numInRow == 2 && importantLoctation == -1) {
+        switch (5-i) {
+          case 2:
+            importantLoctation = 3;
+            break;
+          case 1:
+            importantLoctation = 5;
+            break;
+          case 3:
+            importantLoctation = 4;
+        }
+      }
+    }
+    if (numInRow > 2) {
+      array[2] = 2;
+      return array;
+    }
     return array;
   }
 
@@ -387,6 +446,9 @@ public class MyTools {
         answer = Integer.MAX_VALUE;
       } else if (state.getWinner() == 1 - color) {
         answer = Integer.MIN_VALUE;
+      }
+      else {
+        return 0;
       }
     }
     if (fourInARowForOponent(state) && !gameOver) {
@@ -484,6 +546,22 @@ public class MyTools {
           else if (i == 1) {
             for (int j = 0; j < 6; j++) {
               PentagoCoord cord = new PentagoCoord(j,array[i]);
+              if (state.isPlaceLegal(cord)) {
+                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
+              }
+            }
+          }
+          else if (i == 2 && array[i] == 1) {
+            for (int j = 0; j < 6; j++) {
+              PentagoCoord cord = new PentagoCoord(j,j);
+              if (state.isPlaceLegal(cord)) {
+                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
+              }
+            }
+          }
+          else {
+            for (int j = 0; j < 6; j++) {
+              PentagoCoord cord = new PentagoCoord(5-j,j);
               if (state.isPlaceLegal(cord)) {
                 moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
               }

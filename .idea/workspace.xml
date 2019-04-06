@@ -30,15 +30,14 @@
     <option name="isMigrated" value="true" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/student_player/MyTools.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="489">
-              <caret line="363" column="17" lean-forward="true" selection-start-line="363" selection-start-column="17" selection-end-line="363" selection-end-column="17" />
+            <state relative-caret-position="500">
+              <caret line="403" column="19" lean-forward="true" selection-start-line="403" selection-start-column="19" selection-end-line="403" selection-end-column="19" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#11615#11616#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -47,7 +46,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
+            <state relative-caret-position="2685">
               <caret line="194" column="33" selection-start-line="194" selection-start-column="33" selection-end-line="194" selection-end-column="33" />
               <folding>
                 <element signature="e#11244#11245#0" expanded="true" />
@@ -95,7 +94,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="-297" />
+    <option name="x" value="-309" />
     <option name="y" value="-1080" />
     <option name="width" value="1920" />
     <option name="height" value="1080" />
@@ -145,8 +144,8 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -255,7 +254,14 @@
       <workItem from="1554232141467" duration="1683000" />
       <workItem from="1554242860836" duration="1329000" />
       <workItem from="1554310108847" duration="17432000" />
-      <workItem from="1554482268736" duration="6052000" />
+      <workItem from="1554482268736" duration="6093000" />
+      <workItem from="1554493265052" duration="1768000" />
+      <workItem from="1554495958534" duration="71000" />
+      <workItem from="1554497454497" duration="198000" />
+      <workItem from="1554498901758" duration="27000" />
+      <workItem from="1554504704929" duration="118000" />
+      <workItem from="1554558539284" duration="566000" />
+      <workItem from="1554586952251" duration="1225000" />
     </task>
     <task id="LOCAL-00001" summary="Nothing that greate so far">
       <created>1554262487151</created>
@@ -264,11 +270,18 @@
       <option name="project" value="LOCAL" />
       <updated>1554262487151</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Updated So that it avoids 3 in a row when it can">
+      <created>1554489092182</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1554489092182</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34776000" />
+    <option name="totallyTimeSpent" value="38790000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -280,10 +293,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-297" y="-1080" width="1920" height="1080" extended-state="0" />
+    <frame x="-309" y="-1080" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.09478168" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10010649" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -292,8 +305,8 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32970297" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32871288" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.24356435" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32673267" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.24356435" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32970297" />
@@ -321,28 +334,17 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="corrected the diagonals" />
     <MESSAGE value="Nothing that greate so far" />
-    <option name="LAST_COMMIT_MESSAGE" value="Nothing that greate so far" />
+    <MESSAGE value="Updated So that it avoids 3 in a row when it can" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated So that it avoids 3 in a row when it can" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/student_player/MyTools.java</url>
-          <line>360</line>
+          <line>418</line>
           <properties />
-          <option name="timeStamp" value="97" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/student_player/MyTools.java</url>
-          <line>494</line>
-          <properties />
-          <option name="timeStamp" value="98" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/student_player/MyTools.java</url>
-          <line>333</line>
-          <properties />
-          <option name="timeStamp" value="101" />
+          <option name="timeStamp" value="106" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -487,24 +489,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
+    <entry file="file://$PROJECT_DIR$/src/student_player/MyTools.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="194" column="33" selection-start-line="194" selection-start-column="33" selection-end-line="194" selection-end-column="33" />
+        <state relative-caret-position="500">
+          <caret line="403" column="19" lean-forward="true" selection-start-line="403" selection-start-column="19" selection-end-line="403" selection-end-column="19" />
           <folding>
-            <element signature="e#11244#11245#0" expanded="true" />
-            <element signature="e#11295#11296#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/student_player/MyTools.java">
+    <entry file="file://$PROJECT_DIR$/src/pentago_swap/PentagoBoardState.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="489">
-          <caret line="363" column="17" lean-forward="true" selection-start-line="363" selection-start-column="17" selection-end-line="363" selection-end-column="17" />
+        <state relative-caret-position="2685">
+          <caret line="194" column="33" selection-start-line="194" selection-start-column="33" selection-end-line="194" selection-end-column="33" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#11615#11616#0" expanded="true" />
+            <element signature="e#11244#11245#0" expanded="true" />
+            <element signature="e#11295#11296#0" expanded="true" />
           </folding>
         </state>
       </provider>
