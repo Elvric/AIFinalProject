@@ -13,7 +13,7 @@ public class MyTools {
   private static MyTools instance = new MyTools();
   private int color;
   private Node rootNode;
-  private int limit = 3;
+  private int limit = 5;
   private double RATIO = 0.8;
   private final double ALPHA = 0.8;
   private long timeToThink = 1080;
@@ -27,6 +27,7 @@ public class MyTools {
   }
 
   public PentagoMove monteCarlo(PentagoBoardState state) {
+    getHeuristic(state);
     if (state.getTurnNumber() == 7) {
       limit++;
     } else if (state.getTurnPlayer() == 14) {
@@ -36,7 +37,7 @@ public class MyTools {
     long startTime = System.currentTimeMillis();
     long timeEnd = System.currentTimeMillis() + timeToThink;
     if (state.getTurnNumber() == 0) {
-      this.limit = 3;
+      this.limit = 5;
       this.timeToThink = 1080;
       this.hestimate = 1900;
       return firstMove(state);
@@ -114,8 +115,7 @@ public class MyTools {
         bestNode = child;
         bestAverage = average;
         bestNumVisits = child.visitCount;
-      }
-      else if (average == bestAverage && child.visitCount > bestNumVisits) {
+      } else if (average == bestAverage && child.visitCount > bestNumVisits) {
         bestNode = child;
         bestAverage = average;
         bestNumVisits = child.visitCount;
@@ -194,7 +194,7 @@ public class MyTools {
     }
     // Top diag
     int numInRow = 0;
-    for (int i = 1; i < 4; i++) {
+    for (int i = 1; i < 5; i++) {
       PentagoBoardState.Piece piece = state.getPieceAt(i, i);
       if (i == 1 && isOponentPiece(state.getPieceAt(0, 0), oponent)) {
         break;
@@ -203,14 +203,14 @@ public class MyTools {
       } else if (isMyPiece(piece, oponent)) {
         numInRow++;
       }
-      if (numInRow > 3) {
-        return true;
-      }
+    }
+    if (numInRow > 3) {
+      return true;
     }
 
     // Bottom Diag
     numInRow = 0;
-    for (int i = 1; i < 4; i++) {
+    for (int i = 1; i < 5; i++) {
       PentagoBoardState.Piece piece = state.getPieceAt(5 - i, i);
       if (i == 1 && isOponentPiece(state.getPieceAt(5, 0), oponent)) {
         break;
@@ -301,128 +301,6 @@ public class MyTools {
     return false;
   }
 
-  public int[] oponentHasDangerousThreeInRow(PentagoBoardState state) {
-    int oponent = 1-state.getTurnPlayer();
-    int[] array = {-1,-1,-1,-1};
-    for (int i = 0; i < 6; i++) {
-      int numInRow = 0;
-      int importantLoctation = -1;
-      for (int j = 0; j < 6; j++) {
-        PentagoBoardState.Piece piece = state.getPieceAt(i, j);
-        if (isMyPiece(piece, oponent)) {
-          numInRow = 0;
-          break;
-        } else if (isOponentPiece(piece, oponent)
-            && (importantLoctation == -1 || j == importantLoctation || j == 1 || j == 4)) {
-          numInRow++;
-        }
-        if (numInRow == 2 && importantLoctation == -1) {
-          switch (j) {
-            case 2:
-              importantLoctation = 3;
-              break;
-            case 1:
-              importantLoctation = 5;
-              break;
-            case 3:
-              importantLoctation = 4;
-          }
-        }
-      }
-      if (numInRow > 2) {
-        array[0] = i;
-        return array;
-      }
-    }
-    for (int i = 0; i < 6; i++) {
-      int numInRow = 0;
-      int importantLoctation = -1;
-      for (int j = 0; j < 6; j++) {
-        PentagoBoardState.Piece piece = state.getPieceAt(j, i);
-        if (isMyPiece(piece, oponent)) {
-          numInRow = 0;
-          break;
-        } else if (isOponentPiece(piece, oponent)
-                && (importantLoctation == -1 || j == importantLoctation || j == 1 || j == 4)) {
-          numInRow++;
-        }
-        if (numInRow == 2 && importantLoctation == -1) {
-          switch (j) {
-            case 2:
-              importantLoctation = 3;
-              break;
-            case 1:
-              importantLoctation = 5;
-              break;
-            case 3:
-              importantLoctation = 4;
-          }
-        }
-      }
-      if (numInRow > 2) {
-        array[1] = i;
-        return array;
-      }
-    }
-    int numInRow = 0;
-    int importantLoctation = -1;
-    for (int i = 0; i < 6; i++) {
-      PentagoBoardState.Piece piece = state.getPieceAt(i, i);
-      if (isMyPiece(piece, oponent)) {
-        numInRow = 0;
-        break;
-      } else if (isOponentPiece(piece, oponent)
-              && (importantLoctation == -1 || i == importantLoctation || i == 1 || i == 4)) {
-        numInRow++;
-      }
-      if (numInRow == 2 && importantLoctation == -1) {
-        switch (i) {
-          case 2:
-            importantLoctation = 3;
-            break;
-          case 1:
-            importantLoctation = 5;
-            break;
-          case 3:
-            importantLoctation = 4;
-        }
-      }
-    }
-    if (numInRow > 2) {
-      array[2] = 1;
-      return array;
-    }
-    numInRow = 0;
-    importantLoctation = -1;
-    for (int i = 0; i < 6; i++) {
-      PentagoBoardState.Piece piece = state.getPieceAt(5-i, i);
-      if (isMyPiece(piece, oponent)) {
-        numInRow = 0;
-        break;
-      } else if (isOponentPiece(piece, oponent)
-              && (importantLoctation == -1 || 5-i == importantLoctation || 5-i == 1 || 5-i == 4)) {
-        numInRow++;
-      }
-      if (numInRow == 2 && importantLoctation == -1) {
-        switch (5-i) {
-          case 2:
-            importantLoctation = 3;
-            break;
-          case 1:
-            importantLoctation = 5;
-            break;
-          case 3:
-            importantLoctation = 4;
-        }
-      }
-    }
-    if (numInRow > 2) {
-      array[2] = 2;
-      return array;
-    }
-    return array;
-  }
-
   public boolean isOponentPiece(PentagoBoardState.Piece piece, int oponent) {
     if (piece == PentagoBoardState.Piece.EMPTY) {
       return false;
@@ -446,14 +324,14 @@ public class MyTools {
         answer = Integer.MAX_VALUE;
       } else if (state.getWinner() == 1 - color) {
         answer = Integer.MIN_VALUE;
-      }
-      else {
+      } else {
         return 0;
       }
     }
-    if (fourInARowForOponent(state) && !gameOver) {
+      if (fourInARowForOponent(state) && !gameOver) {
       return Integer.MIN_VALUE;
-    } else if (fourInARowForMySelf(state) && !gameOver) {
+    }
+    else if (fourInARowForMySelf(state) && !gameOver) {
       return 2;
     }
     if (state.getTurnPlayer() == color) {
@@ -491,7 +369,7 @@ public class MyTools {
       if (state.getTurnNumber() < 2) {
         moves = firstthreeMoves(state);
       } else {
-        moves = depth > limit ? allValidMoveIgnoreFlips(state) : state.getAllLegalMoves();
+                moves = depth > limit ? allValidMoveIgnoreFlips(state) : state.getAllLegalMoves();
       }
       for (PentagoMove move : moves) {
         PentagoBoardState childState = (PentagoBoardState) this.state.clone();
@@ -511,76 +389,19 @@ public class MyTools {
         }
       }
       if (bestNode != null) {
-                if (bestNode.heristic > 500) {
-                  children.clear();
-                  children.put(bestNode, bestMove);
-                }
-                else {
-                  bestNode.generateChildren();
-                  if (!(bestNode.children.size() > 1)) {
-                    children.clear();
-                    children.put(bestNode, bestMove);
-                  }
-                }
-//        children.clear();
-//        children.put(bestNode, bestMove);
-      }
-      if (this == rootNode && children.size() > 1 && state.getTurnNumber() > 1) {
-        verifyThreeInRow();
+        if (bestNode.heristic > 500) {
+          children.clear();
+          children.put(bestNode, bestMove);
+        } else {
+          bestNode.generateChildren();
+          if (bestNode.children.size() > 1) {
+            children.clear();
+            children.put(bestNode, bestMove);
+          }
+        }
       }
     }
 
-    public void verifyThreeInRow() {
-      int[] array = oponentHasDangerousThreeInRow(this.state);
-      List<PentagoMove> moves = new ArrayList<>();
-      for (int i = 0; i < array.length; i++) {
-        if (array[i] > -1) {
-          if (i == 0) {
-            for (int j = 0; j < 6; j++) {
-              PentagoCoord cord = new PentagoCoord(array[i],j);
-              if (state.isPlaceLegal(cord)) {
-                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
-              }
-            }
-          }
-          else if (i == 1) {
-            for (int j = 0; j < 6; j++) {
-              PentagoCoord cord = new PentagoCoord(j,array[i]);
-              if (state.isPlaceLegal(cord)) {
-                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
-              }
-            }
-          }
-          else if (i == 2 && array[i] == 1) {
-            for (int j = 0; j < 6; j++) {
-              PentagoCoord cord = new PentagoCoord(j,j);
-              if (state.isPlaceLegal(cord)) {
-                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
-              }
-            }
-          }
-          else {
-            for (int j = 0; j < 6; j++) {
-              PentagoCoord cord = new PentagoCoord(5-j,j);
-              if (state.isPlaceLegal(cord)) {
-                moves.add(new PentagoMove(cord, PentagoBoardState.Quadrant.TL, PentagoBoardState.Quadrant.TR, state.getTurnPlayer()));
-              }
-            }
-          }
-          break;
-        }
-      }
-      if (moves.isEmpty()) {
-        return;
-      }
-      children.clear();
-      for (PentagoMove move : moves) {
-        PentagoBoardState childState = (PentagoBoardState) this.state.clone();
-        childState.processMove(move);
-        Node child = new Node(childState, this, depth, 0);
-        children.put(child,move);
-        }
-    }
     public void incrementUp(boolean won, boolean draw) {
       if (won) {
         winCount++;
