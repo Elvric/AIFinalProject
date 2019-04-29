@@ -16,7 +16,7 @@ public class MyTools {
   private int limit = 5;
   private double RATIO = 0.8;
   private final double ALPHA = 0.8;
-  private long timeToThink = 1080;
+  private long timeToThink = 1000;
   private int hestimate = 1900;
 
   private MyTools() {}
@@ -27,7 +27,6 @@ public class MyTools {
   }
 
   public PentagoMove monteCarlo(PentagoBoardState state) {
-    getHeuristic(state);
     if (state.getTurnNumber() == 7) {
       limit++;
     } else if (state.getTurnPlayer() == 14) {
@@ -38,23 +37,22 @@ public class MyTools {
     long timeEnd = System.currentTimeMillis() + timeToThink;
     if (state.getTurnNumber() == 0) {
       this.limit = 5;
-      this.timeToThink = 1080;
+      this.timeToThink = 1000;
       this.hestimate = 1900;
-      return firstMove(state);
     }
     while (System.currentTimeMillis() < timeEnd) {
       monteCarloStimulation(descentPhase());
     }
-    System.out.println(rootNode.visitCount);
     PentagoMove move = getNextBestMove();
-    System.out.println(rootNode.visitCount);
     hestimate = (int) ((System.currentTimeMillis() - startTime) * ALPHA + hestimate * (1 - ALPHA));
     if (hestimate > 1900) {
       timeToThink -= Integer.max(3, (int) ((hestimate - 1900) * 0.3));
     } else if (hestimate < 1600) {
       timeToThink += Integer.max(4, (int) ((1600 - hestimate) * 0.1));
     }
-    System.out.println(timeToThink);
+    if (state.getTurnNumber() == 0 || state.getTurnNumber() == 1) {
+      return firstMove(state);
+    }
     return move;
   }
 
@@ -126,7 +124,6 @@ public class MyTools {
     }
     PentagoMove move = rootNode.children.get(bestNode);
     rootNode = bestNode;
-    rootNode.printChildren();
     return move;
   }
 
@@ -136,7 +133,12 @@ public class MyTools {
       return 2000;
     }
     int parentVisitCount = n.parent.visitCount;
-    double nodeNumWins = n.winCount;
+    double nodeNumWins;
+    if (n.state.getTurnNumber() != color) {
+      nodeNumWins = n.winCount;
+    } else {
+      nodeNumWins = nodeNumVisits - n.winCount;
+    }
     return nodeNumWins / (double) nodeNumVisits
         + RATIO * Math.sqrt(Math.log(parentVisitCount) / (double) nodeNumVisits);
   }
@@ -328,10 +330,9 @@ public class MyTools {
         return 0;
       }
     }
-      if (fourInARowForOponent(state) && !gameOver) {
+    if (fourInARowForOponent(state) && !gameOver) {
       return Integer.MIN_VALUE;
-    }
-    else if (fourInARowForMySelf(state) && !gameOver) {
+    } else if (fourInARowForMySelf(state) && !gameOver) {
       return 2;
     }
     if (state.getTurnPlayer() == color) {
@@ -369,7 +370,7 @@ public class MyTools {
       if (state.getTurnNumber() < 2) {
         moves = firstthreeMoves(state);
       } else {
-                moves = depth > limit ? allValidMoveIgnoreFlips(state) : state.getAllLegalMoves();
+        moves = depth > limit ? allValidMoveIgnoreFlips(state) : state.getAllLegalMoves();
       }
       for (PentagoMove move : moves) {
         PentagoBoardState childState = (PentagoBoardState) this.state.clone();
