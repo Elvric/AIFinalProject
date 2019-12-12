@@ -1,6 +1,5 @@
 # AIFinalProject
-Preject realized as part of the COMP 424 class at McGill university. The goal was to build an AI that can play pentago swap using any tech
-nology available. The AI would have 2 seconds to think between each move at most. 
+Preject realized as part of the COMP 424 class at McGill university. The goal was to build an AI that can play pentago swap using any technology available. The AI would have 2 seconds to think between each move at most. 
 
 On my end I tackled the challenge using Monte Carlo as the main algorithm combined with a very simple heuristic to trim each branch
 of bad children and increase its interest on promessing children when generating them.  
